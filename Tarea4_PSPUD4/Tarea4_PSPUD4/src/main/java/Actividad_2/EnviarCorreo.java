@@ -5,17 +5,54 @@
  */
 package Actividad_2;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 /**
  *
  * @author Usuario
  */
 public class EnviarCorreo extends javax.swing.JFrame {
 
-    /**
-     * Creates new form EnviarCorreo
-     */
+    ClaseEnviar enviar;
+    
+    public String servidor;
+    public String puerto;
+    public String usuario;
+    public String clave;
+    public String remitente;
+    public String destinatario;
+    public String asunto;
+    public String mensaje;
+    public boolean TLS;
+    
     public EnviarCorreo() {
         initComponents();
+        usuario = jTextUsuario.getText();
+        puerto = jTextPuerto.getText();
+        servidor = jTextSMTP.getText();
+        clave = jTextClave.getText();
+        remitente = jTextRemitente.getText();
+        destinatario = jTextDestinatario.getText();
+        asunto = jTextAsunto.getText();
+        mensaje = jTextAreaMensaje.getText();
+        
+        jRadioButtonSinTLS.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jRadioButtonconTLS.setSelected(false);
+                jRadioButtonSinTLS.setSelected(true);
+                TLS = false;
+            }
+        });
+        jRadioButtonconTLS.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jRadioButtonSinTLS.setSelected(false);
+                jRadioButtonconTLS.setSelected(true);
+                TLS = true;
+            }
+        });
     }
 
     /**
@@ -37,9 +74,9 @@ public class EnviarCorreo extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
+        jTextAreaMensaje = new javax.swing.JTextArea();
+        jRadioButtonSinTLS = new javax.swing.JRadioButton();
+        jRadioButtonconTLS = new javax.swing.JRadioButton();
         jButtonConectar = new javax.swing.JButton();
         jTextSMTP = new javax.swing.JTextField();
         jTextUsuario = new javax.swing.JTextField();
@@ -71,24 +108,34 @@ public class EnviarCorreo extends javax.swing.JFrame {
 
         jLabel10.setText("Redactar cuerpo de mensaje");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        jTextAreaMensaje.setColumns(20);
+        jTextAreaMensaje.setRows(5);
+        jScrollPane1.setViewportView(jTextAreaMensaje);
 
-        buttonGroup1.add(jRadioButton1);
-        jRadioButton1.setText("Sin TLS");
-        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
+        buttonGroup1.add(jRadioButtonSinTLS);
+        jRadioButtonSinTLS.setText("Sin TLS");
+        jRadioButtonSinTLS.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton1ActionPerformed(evt);
+                jRadioButtonSinTLSActionPerformed(evt);
             }
         });
 
-        buttonGroup1.add(jRadioButton2);
-        jRadioButton2.setText("Con TLS");
+        buttonGroup1.add(jRadioButtonconTLS);
+        jRadioButtonconTLS.setText("Con TLS");
 
         jButtonConectar.setText("Conectar");
+        jButtonConectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonConectarActionPerformed(evt);
+            }
+        });
 
         jButtonEnviar.setText("Enviar mensaje");
+        jButtonEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonEnviarActionPerformed(evt);
+            }
+        });
 
         jButtonAdjuntar.setText("Adjuntar archivo:");
 
@@ -136,9 +183,9 @@ public class EnviarCorreo extends javax.swing.JFrame {
                                             .addComponent(jTextPuerto)
                                             .addComponent(jTextClave, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
                                         .addGap(72, 72, 72)
-                                        .addComponent(jRadioButton1)
+                                        .addComponent(jRadioButtonSinTLS)
                                         .addGap(64, 64, 64)
-                                        .addComponent(jRadioButton2)))
+                                        .addComponent(jRadioButtonconTLS)))
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel4)
@@ -170,8 +217,8 @@ public class EnviarCorreo extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel5)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2)
+                    .addComponent(jRadioButtonSinTLS)
+                    .addComponent(jRadioButtonconTLS)
                     .addComponent(jTextSMTP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextPuerto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
@@ -209,9 +256,20 @@ public class EnviarCorreo extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+    private void jRadioButtonSinTLSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonSinTLSActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton1ActionPerformed
+        
+    }//GEN-LAST:event_jRadioButtonSinTLSActionPerformed
+
+    private void jButtonConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConectarActionPerformed
+        // TODO add your handling code here:
+        enviar.conectar();
+    }//GEN-LAST:event_jButtonConectarActionPerformed
+
+    private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEnviarActionPerformed
+        // TODO add your handling code here:
+        enviar = new ClaseEnviar(servidor, puerto, usuario, clave, remitente, destinatario, asunto, mensaje, TLS);
+    }//GEN-LAST:event_jButtonEnviarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -261,12 +319,12 @@ public class EnviarCorreo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JRadioButton jRadioButtonSinTLS;
+    private javax.swing.JRadioButton jRadioButtonconTLS;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField jTextAdjuntar;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextAreaMensaje;
     private javax.swing.JTextField jTextAsunto;
     private javax.swing.JTextField jTextClave;
     private javax.swing.JTextField jTextDestinatario;

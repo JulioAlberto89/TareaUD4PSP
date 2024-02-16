@@ -5,6 +5,7 @@
  */
 package Actividad_2;
 
+import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
@@ -50,18 +51,55 @@ public class ClaseEnviar {
         this.TLS = TLS;
     }
 
-    public void enviarCorreo(String usuario, String clave, String servidor, String puerto, String remitente, String mensaje) throws AddressException, MessagingException {
-        final Properties prop = new Properties();
+    public boolean conectar() {
+        Properties prop = new Properties();
         prop.put("mail.smtp.username", usuario);
         prop.put("mail.smtp.password", clave);
         prop.put("mail.smtp.host", servidor);
         prop.put("mail.smtp.port", puerto);
         prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.starttls.enable", "true"); // TLS
+        prop.put("mail.smtp.starttls.enable", String.valueOf(TLS)); // TLS
         prop.put("mail.debug", "true");
 
         // Crear la sesión con las credenciales del usuario
-        Session mailSession = Session.getInstance(prop, new jakarta.mail.Authenticator() {
+        Session mailSession = Session.getInstance(prop, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(prop.getProperty("mail.smtp.username"), prop.getProperty("mail.smtp.password"));
+            }
+        });
+
+        try {
+            // Intentar conectar y enviar un mensaje en blanco para verificar si los datos son válidos
+            Message message = new MimeMessage(mailSession);
+            message.setFrom(new InternetAddress(remitente));
+            message.setSubject("Test connection");
+
+            // Establecer destinatario
+            InternetAddress[] toEmailAddresses = InternetAddress.parse(remitente);
+            message.setRecipients(Message.RecipientType.TO, toEmailAddresses);
+
+            // Enviar el mensaje
+            Transport.send(message);
+            return true; // Si no hay excepciones, la conexión fue exitosa
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false; // Si hay una excepción, la conexión falló
+        }
+    }
+
+    public void enviarCorreo() throws MessagingException {
+        Properties prop = new Properties();
+        prop.put("mail.smtp.username", usuario);
+        prop.put("mail.smtp.password", clave);
+        prop.put("mail.smtp.host", servidor);
+        prop.put("mail.smtp.port", puerto);
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.starttls.enable", String.valueOf(TLS)); // TLS
+        prop.put("mail.debug", "true");
+
+        // Crear la sesión con las credenciales del usuario
+        Session mailSession = Session.getInstance(prop, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(prop.getProperty("mail.smtp.username"), prop.getProperty("mail.smtp.password"));
@@ -72,114 +110,13 @@ public class ClaseEnviar {
         Message message = new MimeMessage(mailSession);
         // Establecer el remitente y el asunto del correo electrónico
         message.setFrom(new InternetAddress(remitente));
-        message.setSubject("Sending Mail with pure Jakarta Mail API");
+        message.setSubject(asunto);
 
-        // Establecer destinatarios To, CC y BCC
-        InternetAddress[] toEmailAddresses = InternetAddress.parse(remitente);
-        //InternetAddress[] ccEmailAddresses = InternetAddress.parse(destinatarioCC);
-        //InternetAddress[] bccEmailAddresses = InternetAddress.parse(destinatarioBCC);
+        // Establecer destinatario y cuerpo del mensaje
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+        message.setContent(mensaje, "text/html");
 
-        message.setRecipients(Message.RecipientType.TO, toEmailAddresses);
-        //message.setRecipients(Message.RecipientType.CC, ccEmailAddresses);
-        //message.setRecipients(Message.RecipientType.BCC, bccEmailAddresses);
-
-        // Cuerpo del correo con HTML que incluye una imagen
-        Multipart multipart = new MimeMultipart("related");
-        MimeBodyPart htmlPart = new MimeBodyPart();
-        // Agregar referencia a la imagen en el cuerpo HTML <img src="cid:some-image-cid" alt="img" />
-        mensaje = "<p></p><img src=\"https://projects.eclipse.org/sites/default/files/36201228_22.png\" alt=\"img\" /></p>";
-        htmlPart.setText(mensaje, "utf-8", "html");
-        // Agregar el BodyPart al objeto Multipart
-        multipart.addBodyPart(htmlPart);
-        // Establecer el contenido del mensaje
-        message.setContent(multipart);
-
-        // Enviar el mensaje configurado en la sesión
+        // Enviar el mensaje
         Transport.send(message);
     }
 }
-/*
-    public static void main(String[] args) throws AddressException, MessagingException, IOException {
-
-        final Properties prop = new Properties();
-        prop.put("mail.smtp.username", "username@gmail.com");
-        prop.put("mail.smtp.password", "contraseña generada en la configuración de gmail");
-        prop.put("mail.smtp.host", "smtp.gmail.com");
-        prop.put("mail.smtp.port", "587");
-        prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.starttls.enable", "true"); // TLS
-        prop.put("mail.debug", "true");
-
-// Create the Session with the user credentials
-        Session mailSession = Session.getInstance(prop, new jakarta.mail.Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(prop.getProperty("mail.smtp.username"),
-                        prop.getProperty("mail.smtp.password"));
-            }
-        });
-        // Prepare the MimeMessage
-        Message message = new MimeMessage(mailSession);
-// Set From and subject email properties
-        message.setFrom(new InternetAddress("username@gmail.com"));
-        message.setSubject("Sending Mail with pure Jakarta Mail API ");
-
-// Set to, cc & bcc recipients        
-        InternetAddress[] toEmailAddresses
-                = InternetAddress.parse("username@gmail.com");
-        InternetAddress[] ccEmailAddresses
-                = InternetAddress.parse("correo1@gmail.com");
-        InternetAddress[] bccEmailAddresses
-                = InternetAddress.parse("correo2@gmail.com");
-
-        message.setRecipients(Message.RecipientType.TO, toEmailAddresses);
-        message.setRecipients(Message.RecipientType.CC, ccEmailAddresses);
-        message.setRecipients(Message.RecipientType.BCC, bccEmailAddresses);
-
-//Mail body with plain Text
- /* message.setText("Hello User,"
-                + "\n\n If you read this, means mail sent with Java Mail API is successful");*/
-
-//Mail body with HTML
-/* message.setContent("Just discovered that Jakarta Mail is fun and easy to use",
-                "text/html");*/
-//Mail with attached files
-/*
-    // create an instance of multipart object
-        Multipart multipart = new MimeMultipart();
-
-    // create the 1st message body part
-        MimeBodyPart messageBodyPart = new MimeBodyPart();
-    // Add a plain message (HTML can also be added with setContent)
-        messageBodyPart.setText("Please find the attachment sent using Jakarta Mail");
-    // Add the BodyPart to the Multipart object
-        multipart.addBodyPart(messageBodyPart);
-
-    // 2nd. bodyPart with an attached file
-        messageBodyPart = new MimeBodyPart();
-        String filename = "File.pdf";
-        messageBodyPart.attachFile(filename);
-    // Add the BodyPart to the Multipart object
-        multipart.addBodyPart(messageBodyPart);
-
-    // Add the multipart object to the message
-        message.setContent(multipart);
- */
-//Mail with images
-//An HTML code with a link referenced image
-/*
-        Multipart multipart = new MimeMultipart("related");
-        MimeBodyPart htmlPart = new MimeBodyPart();
-//add reference to your image to the HTML body <img src="cid:some-image-cid" alt="img" />
-        String messageBody = "<p></p><img src=\"https://projects.eclipse.org/sites/default/files/36201228_22.png\" alt=\"img\" /></p>";
-        htmlPart.setText(messageBody, "utf-8", "html");
-// Add the BodyPart to the Multipart object
-        multipart.addBodyPart(htmlPart);
-// Add the multipart object to the message
-        message.setContent(multipart);
-        
-       
-// Send the configured message in the session
-        Transport.send(message);
-    }
- */
