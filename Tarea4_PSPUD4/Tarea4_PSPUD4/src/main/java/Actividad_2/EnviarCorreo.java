@@ -8,7 +8,11 @@ package Actividad_2;
 import jakarta.mail.MessagingException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Properties;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
@@ -18,28 +22,12 @@ import javax.swing.JOptionPane;
 public class EnviarCorreo extends javax.swing.JFrame {
 
     ClaseEnviar enviar;
+    List <String> filePaths = new ArrayList<>();
 
     public EnviarCorreo() {
         initComponents();
         jTextPuerto.setText("587");
         jTextSMTP.setText("smtp.gmail.com");
-        /*
-        String servidor = jTextSMTP.getText();
-        String puerto = jTextPuerto.getText();
-        String usuario = jTextUsuario.getText();
-        String clave = jTextClave.getText();
-
-        boolean TLS;
-        if (jRadioButtonconTLS.isSelected())
-        {
-            TLS = true;
-        } else
-        {
-            TLS = false;
-        }
-
-        enviar = new ClaseEnviar(servidor, puerto, usuario, clave, rootPaneCheckingEnabled);
-        */
     }
 
     /**
@@ -125,6 +113,11 @@ public class EnviarCorreo extends javax.swing.JFrame {
         });
 
         jButtonAdjuntar.setText("Adjuntar archivo:");
+        jButtonAdjuntar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAdjuntarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -185,17 +178,15 @@ public class EnviarCorreo extends javax.swing.JFrame {
                                 .addComponent(jButtonAdjuntar, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(27, 27, 27)
                                 .addComponent(jTextAdjuntar, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel1)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jTextSMTP, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel3)
-                                    .addGap(12, 12, 12)
-                                    .addComponent(jTextRemitente, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 651, Short.MAX_VALUE))))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jTextSMTP, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(12, 12, 12)
+                                .addComponent(jTextRemitente, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 293, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -285,13 +276,26 @@ public class EnviarCorreo extends javax.swing.JFrame {
             String asunto = jTextAsunto.getText();
             String mensaje = jTextAreaMensaje.getText();
 
-            enviar.enviarCorreo(remitente, destinatario, asunto, mensaje);
+            enviar.enviarCorreo(remitente, destinatario, asunto, mensaje, filePaths);
             JOptionPane.showMessageDialog(null, "Correo enviado exitosamente");
         } catch (Exception ex)
         {
             JOptionPane.showMessageDialog(null, "Error al enviar el correo");
         }
     }//GEN-LAST:event_jButtonEnviarActionPerformed
+
+    private void jButtonAdjuntarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAdjuntarActionPerformed
+        // TODO add your handling code here:
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION)
+        {
+            File selectedFile = fileChooser.getSelectedFile();
+            String filePath = selectedFile.getAbsolutePath(); // Guarda la ruta del archivo en la lista
+            filePaths.add(filePath);
+            jTextAdjuntar.setText(filePath);
+        }
+    }//GEN-LAST:event_jButtonAdjuntarActionPerformed
 
     /**
      * @param args the command line arguments

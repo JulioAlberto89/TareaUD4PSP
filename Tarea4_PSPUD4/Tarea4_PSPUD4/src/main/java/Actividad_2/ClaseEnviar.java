@@ -18,6 +18,7 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -67,7 +68,7 @@ public class ClaseEnviar {
         }
     }
 
-    public void enviarCorreo(String remitente, String destinatario, String asunto, String mensaje) throws MessagingException, IOException {
+    public void enviarCorreo(String remitente, String destinatario, String asunto, String mensaje, List<String> filePaths) throws MessagingException, IOException {
         Message message = new MimeMessage(mailSession);
 
         message.setFrom(new InternetAddress(remitente));
@@ -90,21 +91,15 @@ public class ClaseEnviar {
         messageBodyPart.setText("Por favor, encuentra el archivo adjunto enviado usando Jakarta Mail");
         multipart.addBodyPart(messageBodyPart);
 
-        // Segunda parte del mensaje con un archivo adjunto
-        messageBodyPart = new MimeBodyPart();
-        String filename = "File.pdf";
-        messageBodyPart.attachFile(filename);
-        multipart.addBodyPart(messageBodyPart);
+        // Partes del mensaje con archivos adjuntos
+        for (String filePath : filePaths)
+        {
+            messageBodyPart = new MimeBodyPart();
+            messageBodyPart.attachFile(filePath);
+            multipart.addBodyPart(messageBodyPart);
+        }
 
         // Añadir el objeto multipart al mensaje
-        message.setContent(multipart);
-
-        // Correo con imágenes
-        multipart = new MimeMultipart("related");
-        MimeBodyPart htmlPart = new MimeBodyPart();
-        String messageBody = "<p></p><img src=\"https://projects.eclipse.org/sites/default/files/36201228_22.png\" alt=\"img\" /></p>";
-        htmlPart.setText(messageBody, "utf-8", "html");
-        multipart.addBodyPart(htmlPart);
         message.setContent(multipart);
 
         // Enviar el mensaje configurado en la sesión
