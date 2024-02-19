@@ -5,8 +5,11 @@
  */
 package Actividad_2;
 
+import jakarta.mail.MessagingException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Properties;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -15,44 +18,28 @@ import java.awt.event.ActionListener;
 public class EnviarCorreo extends javax.swing.JFrame {
 
     ClaseEnviar enviar;
-    
-    public String servidor;
-    public String puerto;
-    public String usuario;
-    public String clave;
-    public String remitente;
-    public String destinatario;
-    public String asunto;
-    public String mensaje;
-    public boolean TLS;
-    
+
     public EnviarCorreo() {
         initComponents();
-        usuario = jTextUsuario.getText();
-        puerto = jTextPuerto.getText();
-        servidor = jTextSMTP.getText();
-        clave = jTextClave.getText();
-        remitente = jTextRemitente.getText();
-        destinatario = jTextDestinatario.getText();
-        asunto = jTextAsunto.getText();
-        mensaje = jTextAreaMensaje.getText();
-        
-        jRadioButtonSinTLS.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jRadioButtonconTLS.setSelected(false);
-                jRadioButtonSinTLS.setSelected(true);
-                TLS = false;
-            }
-        });
-        jRadioButtonconTLS.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jRadioButtonSinTLS.setSelected(false);
-                jRadioButtonconTLS.setSelected(true);
-                TLS = true;
-            }
-        });
+        jTextPuerto.setText("587");
+        jTextSMTP.setText("smtp.gmail.com");
+        /*
+        String servidor = jTextSMTP.getText();
+        String puerto = jTextPuerto.getText();
+        String usuario = jTextUsuario.getText();
+        String clave = jTextClave.getText();
+
+        boolean TLS;
+        if (jRadioButtonconTLS.isSelected())
+        {
+            TLS = true;
+        } else
+        {
+            TLS = false;
+        }
+
+        enviar = new ClaseEnviar(servidor, puerto, usuario, clave, rootPaneCheckingEnabled);
+        */
     }
 
     /**
@@ -258,17 +245,52 @@ public class EnviarCorreo extends javax.swing.JFrame {
 
     private void jRadioButtonSinTLSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonSinTLSActionPerformed
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_jRadioButtonSinTLSActionPerformed
 
     private void jButtonConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConectarActionPerformed
         // TODO add your handling code here:
-        enviar.conectar();
+        String servidor = jTextSMTP.getText();
+        String puerto = jTextPuerto.getText();
+        String usuario = jTextUsuario.getText();
+        String clave = jTextClave.getText();
+
+        boolean TLS;
+        if (jRadioButtonconTLS.isSelected())
+        {
+            TLS = true;
+        } else
+        {
+            TLS = false;
+        }
+
+        enviar = new ClaseEnviar(servidor, puerto, usuario, clave, TLS);
+
+        boolean conectado = enviar.conectar();
+        if (conectado)
+        {
+            JOptionPane.showMessageDialog(null, "Conexión exitosa");
+        } else
+        {
+            JOptionPane.showMessageDialog(null, "Error al conectar");
+        }
     }//GEN-LAST:event_jButtonConectarActionPerformed
 
     private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEnviarActionPerformed
         // TODO add your handling code here:
-        enviar = new ClaseEnviar(servidor, puerto, usuario, clave, remitente, destinatario, asunto, mensaje, TLS);
+        try
+        {
+            String remitente = jTextRemitente.getText();
+            String destinatario = jTextDestinatario.getText();
+            String asunto = jTextAsunto.getText();
+            String mensaje = jTextAreaMensaje.getText();
+
+            enviar.enviarCorreo(remitente, destinatario, asunto, mensaje);
+            JOptionPane.showMessageDialog(null, "Correo enviado exitosamente");
+        } catch (Exception ex)
+        {
+            JOptionPane.showMessageDialog(null, "Error al enviar el correo");
+        }
     }//GEN-LAST:event_jButtonEnviarActionPerformed
 
     /**
@@ -280,20 +302,27 @@ public class EnviarCorreo extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+        try
+        {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
+            {
+                if ("Nimbus".equals(info.getName()))
+                {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex)
+        {
             java.util.logging.Logger.getLogger(EnviarCorreo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
+        } catch (InstantiationException ex)
+        {
             java.util.logging.Logger.getLogger(EnviarCorreo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException ex)
+        {
             java.util.logging.Logger.getLogger(EnviarCorreo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (javax.swing.UnsupportedLookAndFeelException ex)
+        {
             java.util.logging.Logger.getLogger(EnviarCorreo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
